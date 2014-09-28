@@ -6,6 +6,8 @@ public class MapLoader : MonoBehaviour {
 
 	public GameObject tilePrefab;
 	public GameObject wallPrefab;
+	public GameObject enemyPrefab;
+	public GameObject friendPrefab;
 	public GameObject playerPrefab;
 
 	//public GameObject cameraObject;
@@ -50,7 +52,19 @@ public class MapLoader : MonoBehaviour {
 						GameObject wall = (GameObject)Instantiate(wallPrefab, pos, wallPrefab.transform.rotation);
 						wall.transform.parent = stage.transform;
 					}
-					count++;
+					else if(c == "o"[0]) {
+						GameObject friend = (GameObject)Instantiate(friendPrefab, pos, friendPrefab.transform.rotation);
+						friend.transform.parent = GameObject.Find("root").transform;
+					}
+					else if(c == "e"[0]) {
+						GameObject enemy = (GameObject)Instantiate(enemyPrefab, pos, enemyPrefab.transform.rotation);
+						enemy.transform.parent = GameObject.Find("root").transform;
+						count++;
+					}
+					else if(c == "i"[0]) {
+						GameObject player = (GameObject)Instantiate(playerPrefab, pos, Quaternion.identity);
+						player.transform.parent = GameObject.Find("root").transform;
+					}
 				}
 			}
 		}
@@ -61,8 +75,6 @@ public class MapLoader : MonoBehaviour {
 		cameraObject.transform.position = new Vector3((float)(x + 1f) * width / 2f, (float)(-(y - 1f)) * height / 2f, -10f);
 		cameraObject.camera.orthographicSize = (y) * height / 2;
 		 */
-		GameObject player = (GameObject)Instantiate(playerPrefab, new Vector3(1, -1, 0), Quaternion.identity);
-		player.transform.parent = GameObject.Find("root").transform;
 		return count;
 	}
 }

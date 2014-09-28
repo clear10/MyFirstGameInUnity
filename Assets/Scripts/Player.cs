@@ -14,7 +14,7 @@ public class Player : MonoBehaviour {
 
 	public Vector3 pos;
 	public int LIMMIT_BULLET = 3;
-	public float SHOT_DELAY = 2f;
+	public float SHOT_DELAY = 0.2f;
 	public int currentBullet;
 	public bool isShotEnable;
 	public GameObject bulletPrefab;
@@ -137,7 +137,10 @@ public class Player : MonoBehaviour {
 					ofs = new Vector3(1f, 0, 0);
 					break;
 			}
-			/*GameObject bullet = (GameObject)*/Instantiate(bulletPrefab, transform.position + ofs, Quaternion.identity);
+			/*GameObject bullet = (GameObject)*/
+			
+			GameObject bullet = (GameObject)Instantiate(bulletPrefab, transform.position + ofs, Quaternion.identity);
+			bullet.GetComponent<Bullet>().Initialize(ofs, this.gameObject);
 			//bullet.transform.parent = this.transform;
 			currentBullet--;
 			isShotEnable = false;

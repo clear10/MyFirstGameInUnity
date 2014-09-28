@@ -5,41 +5,62 @@ public class Bullet : MonoBehaviour {
 
 	public float FORCE_FACTOR = 10f;
 
-	private GameObject player;
+	public GameObject parent;
+
 
 	// Use this for initialization
 	void Start () {
-		player = GameObject.FindWithTag("Player");
-		int vec = player.GetComponent<Animator>().GetInteger("Vector");
-		Vector2 forceVec = Vector3.zero;
-		switch(vec) {
-			case 0:
-				forceVec = new Vector2(0f, -1f);
-				break;
-			case 1:
-				forceVec = new Vector2(0f, 1f);
-				break;
-			case 2:
-				forceVec = new Vector2(-1f, 0);
-				break;
-			case 3:
-				forceVec = new Vector2(1f, 0);
-				break;
-		}
-		rigidbody2D.AddForce(forceVec * FORCE_FACTOR, ForceMode2D.Impulse);
 	}
-	
+
+	public void Initialize (Vector2 force, GameObject parent) {
+		this.parent = parent;
+		rigidbody2D.AddForce(force * FORCE_FACTOR, ForceMode2D.Impulse);
+	}
+
 	// Update is called once per frame
 	void Update () {
 		transform.rotation = Quaternion.identity;
-		
+
 	}
 
 	// Trigger
-	void OnTriggerStay2D (Collider2D col) {
+	void OnTriggerEnter2D (Collider2D col) {
 		if(col.gameObject.tag == "Wall") {
+			if(parent.tag == "Player") parent.GetComponent<Player>().SendMessage("FillUpBullet", SendMessageOptions.DontRequireReceiver);
+			if(parent.tag == "Friend") parent.GetComponent<Friend>().SendMessage("FillUpBullet", SendMessageOptions.DontRequireReceiver);
+			if(parent.tag == "Enemy") parent.GetComponent<Enemy>().SendMessage("FillUpBullet", SendMessageOptions.DontRequireReceiver);
 			Destroy(this.gameObject);
-			player.GetComponent<Player>().SendMessage("FillUpBullet", SendMessageOptions.DontRequireReceiver);
+		}
+		else if(col.gameObject.tag == "Enemy") {
+			if(parent.tag == "Player") {
+				Destroy(col.gameObject);
+				Destroy(this.gameObject);
+				parent.GetComponent<Player>().SendMessage("FillUpBullet", SendMessageOptions.DontRequireReceiver);
+				GameObject.FindWithTag("GameController").GetComponent<GameManager>().SendMessage("ShotEnemy", SendMessageOptions.DontRequireReceiver);
+			}
+			else if(parent.tag == "Friend") {
+				Destroy(col.gameObject);
+				Destroy(this.gameObject);
+				parent.GetComponent<Friend>().SendMessage("FillUpBullet", SendMessageOptions.DontRequireReceiver);
+				GameObject.FindWithTag("GameController").GetComponent<GameManager>().SendMessage("ShotEnemy", SendMessageOptions.DontRequireReceiver);
+			}
+			//if(this.parent.tag == "Enemy") parent.GetComponent<Enemy>().SendMessage("FillUpBullet", SendMessageOptions.DontRequireReceiver);
+		}
+		else if(col.gameObject.tag == "Friend") {
+			//if(parent.tag == "Player") parent.GetComponent<Player>().SendMessage("FillUpBullet", SendMessageOptions.DontRequireReceiver);
+			//if(parent.tag == "Friend") parent.GetComponent<Friend>().SendMessage("FillUpBullet", SendMessageOptions.DontRequireReceiver);
+			if(parent.tag == "Enemy") {
+				Destroy(col.gameObject);
+				Destroy(this.gameObject);
+				parent.GetComponent<Enemy>().SendMessage("FillUpBullet", SendMessageOptions.DontRequireReceiver);
+			}
+		}
+		else if(col.gameObject.tag == "Player") {
+			if(parent.tag == "Enemy") {
+				GameObject.FindWithTag("GameController").GetComponent<GameManager>().SendMessage("GameOver", SendMessageOptions.DontRequireReceiver);
+				Destroy(col.gameObject);
+				Destroy(this.gameObject);
+			}
 		}
 	}
 }
