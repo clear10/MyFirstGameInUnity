@@ -13,11 +13,6 @@ public class Player : MonoBehaviour {
 	};
 
 	public Vector3 pos;
-	public int LIMMIT_BULLET = 3;
-	public float SHOT_DELAY = 2f;
-	public int currentBullet;
-	public bool isShotEnable;
-	public GameObject bulletPrefab;
 
 	private Animator animator;
 	private int frameCount;
@@ -32,8 +27,6 @@ public class Player : MonoBehaviour {
 		frameCount = 0;
 		moveDef = 1f / (float)NUM_FRAME_ANIM;
 		nextVector = PlayerVector.UNKNOWN;
-		currentBullet = LIMMIT_BULLET;
-		isShotEnable = true;
 
 		Camera.main.gameObject.transform.parent = this.transform;
 		Camera.main.gameObject.transform.localPosition = new Vector3(0f, 0f, -10f);
@@ -42,10 +35,8 @@ public class Player : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		Move(ref animator, ref frameCount);
-		Shot();
 	}
 
-	// Move
 	void Move (ref Animator anim, ref int frame) {
 
 		PlayerVector playerVector = (PlayerVector)anim.GetInteger("Vector");
@@ -116,45 +107,6 @@ public class Player : MonoBehaviour {
 		frame = (frame + 1) % NUM_FRAME_ANIM;
 	}
 
-	// Shot
-	void Shot () {
-		if(!isShotEnable) return;
-		if(!Input.GetKey(KeyCode.Space)) return;
-		if(currentBullet > 0) {
-			int vec = animator.GetInteger("Vector");
-			Vector3 ofs = Vector3.zero;
-			switch(vec) {
-				case 0:
-					ofs = new Vector3(0f, -1f, 0);
-					break;
-				case 1:
-					ofs = new Vector3(0f, 1f, 0);
-					break;
-				case 2:
-					ofs = new Vector3(-1f, 0, 0);
-					break;
-				case 3:
-					ofs = new Vector3(1f, 0, 0);
-					break;
-			}
-			/*GameObject bullet = (GameObject)*/Instantiate(bulletPrefab, transform.position + ofs, Quaternion.identity);
-			//bullet.transform.parent = this.transform;
-			currentBullet--;
-			isShotEnable = false;
-			StartCoroutine("ShotInterval");
-		}
-	}
-
-	IEnumerator ShotInterval () {
-		yield return new WaitForSeconds(SHOT_DELAY);
-		isShotEnable = true;
-	}
-
-	public void FillUpBullet () {
-		currentBullet++;
-	}
-
-	// Trigger
 	void OnTriggerStay2D (Collider2D col) {
 		if(col.gameObject.tag == "Wall") {
 			animator.SetBool("isWalk", false);
